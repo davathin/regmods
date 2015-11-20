@@ -1,7 +1,7 @@
 ---
 output: pdf_document
 ---
-# Motor Trend Cars - How is MPG ratingaffected by transmission type and other specs?
+# Motor Trend Cars - How is MPG rating affected by transmission type and other specs?
 ## David C Latshaw II
 
 ### Executive Summary  
