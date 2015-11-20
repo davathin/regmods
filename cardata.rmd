@@ -1,0 +1,78 @@
+---
+output: pdf_document
+---
+# Motor Trend Cars - How is MPG ratingaffected by transmission type and other specs?
+## David C Latshaw II
+
+### Executive Summary  
+We have built a linear model that takes into consideration the weight of the car, how many cylinders it has, it's horsepower, and its transmission type to predict the miles per gallon a car will get. The results show that if you want to maximize your the miles per gallon you should have a light weight car with 4 cylinders, lower horsepower, and a manual transmission.  
+
+### Introduction
+For this analysis we will use the Motor Trend Cars data set in R. Ultimately we would like to answer the questions:  
+Is an automatic or manual transmission better for MPG?  
+Quantify the MPG difference between automatic and manual transmissions?
+
+#### Data
+First we load the load the data
+```{r, echo=TRUE}
+data(mtcars)
+``` 
+
+#### Analysis  
+Next we will take a look at a plot of the MPG distribution for automatic and manual transmissions with 0 being automatic and 1 being manual:
+```{r,echo=TRUE}
+plot(mpg~am,data=mtcars)
+abline(lm(mtcars$mpg~mtcars$am),col="red")
+```          
+
+There appears to be a bit of a correlation between what type of transmission the car has and it's MPG rating, but we would also like to know how the other variables in the data set correlate with MPG:  
+```{r, echo=TRUE}
+cor(mtcars$mpg,mtcars)
+```           
+
+From these correlations we will examine all of the variables that have a correlation higher than the transmission type to start:
+```{r, echo=TRUE}
+par(mfrow=c(2,3))
+plot(mpg~wt,data=mtcars)
+abline(lm(mtcars$mpg~mtcars$wt),col="red")
+plot(mpg~cyl,data=mtcars)
+abline(lm(mtcars$mpg~mtcars$cyl),col="blue")
+plot(mpg~disp,data=mtcars)
+abline(lm(mtcars$mpg~mtcars$disp),col="green")
+plot(mpg~hp,data=mtcars)
+abline(lm(mtcars$mpg~mtcars$hp),col="yellow")
+plot(mpg~drat,data=mtcars)
+abline(lm(mtcars$mpg~mtcars$drat),col="orange")
+plot(mpg~vs,data=mtcars)
+abline(lm(mtcars$mpg~mtcars$vs),col="purple")
+```           
+
+As a first pass we will include all of these variables as predictors in the model with MPG as the response:
+```{r, echo=TRUE}
+mtcars$am<-factor(mtcars$am)
+mtcars$cyl<-factor(mtcars$cyl)
+fit<-lm(mpg~wt+cyl+disp+hp+drat+vs+am,mtcars)
+summary(fit)
+```            
+
+From the fit we can see that there are a few variables that we can get rid of to simplify the model because they have a P-value >0.05. We will start with the three lowest contributors, namely we will get rid of displacement (disp), the rear axle ratio (drat), and the engine configuration (vs) then rebuild the model.
+```{r, echo=TRUE}
+mtcars$am<-factor(mtcars$am)
+mtcars$cyl<-factor(mtcars$cyl)
+fit<-lm(mpg~wt+cyl+hp+am,mtcars)
+summary(fit)
+par(mfrow=c(2,2))
+plot(fit)
+```     
+
+In this final model we have included transmission type (am) as well as the other highest contributing variables: weight (wt), number of cylinders (cyl), and horsepower (hp). Overall this model can describe 86.6% of the variability in MPG between cars. The variables that are most highly correlated to MPG in the model are the weight and horsepower of the car. In this particular model transmission type does not influence the MPG rating (p-value > 0.05). A review of the residuals also shows that the distribution of the data in the model is normal and not dependent on what variables were chosen for the fit.  
+
+#### Results  
+Some of the most important results from the model are as follows:
+
+* For every 1000lb increase in the weight of the car there is a 2.50 mile per gallon decrease
+* When compared to 4 cylinder cars, 6 cylinder cars get 3.03 less miles per gallon and 8 cylinder cars get 2.16 less miles per gallon (uncertain with a p-value > 0.05)
+* A 1hp increase correlates to a decrease of 0.032 miles per gallon
+* Using a manual transmission instead of an automatic transmission (uncertain with a p-value > 0.05)
+
+Taking these general trends into consideration, if you want to maximize your the miles per gallon you should have a light weight car with 4 cylinders, lower horsepower, and a manual transmission.
